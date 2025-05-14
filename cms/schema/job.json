@@ -1,0 +1,29 @@
+{
+  "title": "JobPosting",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "imageUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "content": {
+      "type": "string"
+    }
+  },
+  "required": ["id", "title", "summary", "tags", "imageUrl", "content"]
+} 

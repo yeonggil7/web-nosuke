@@ -1,0 +1,13 @@
+content:
+  jobs:
+    path: "jobs"
+    schema: "./schema/job.json"
+    publish: true
+ai:
+  provider: cursol
+  settings:
+    maxTokens: 1024
+    temperature: 0.7
+templates:
+  cardList: "JobCard"
+  detailPage: "jobs/[id]/page.tsx" 

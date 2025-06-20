@@ -5,4 +5,5 @@ export interface JobPosting {
   tags: string[];
   imageurl: string;
   content: string;
+  created_at?: string;
 } 

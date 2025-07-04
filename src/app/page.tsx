@@ -18,19 +18,22 @@ export default async function Home() {
         <div className="relative container mx-auto px-4 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              あなたの未来を
+              あなたのキャリアを
               <br />
-              <span className="text-blue-300">見つけよう</span>
+              <span className="text-blue-300">根付かせよう</span>
             </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-blue-100">
-              最高の企業との出会いがここにある
+            <p className="text-xl lg:text-2xl mb-4 text-blue-100">
+              Roots Career で見つける、理想の未来
+            </p>
+            <p className="text-lg mb-8 text-blue-200">
+              あなたの可能性を最大限に引き出すキャリア支援プラットフォーム
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/mypage" className="bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-all duration-200 hover:shadow-lg active:scale-95">
-                マイページ
+                キャリアを始める
               </Link>
-              <Link href="/admin" className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-900 transition-all duration-200 active:scale-95">
-                管理者ページ
+              <Link href="/jobs" className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-900 transition-all duration-200 active:scale-95">
+                求人を探す
               </Link>
             </div>
           </div>
@@ -81,7 +84,7 @@ export default async function Home() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800">新着エントリー</h2>
+            <h2 className="text-3xl font-bold text-gray-800">注目の求人</h2>
             <Link href="/jobs" className="text-blue-600 hover:text-blue-800 font-semibold flex items-center">
               すべて見る
               <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +127,7 @@ export default async function Home() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-800">{job.title}</h3>
-                      <p className="text-sm text-gray-500">テクノロジー企業</p>
+                      <p className="text-sm text-gray-500">優良企業</p>
                     </div>
                   </div>
                   
@@ -160,7 +163,7 @@ export default async function Home() {
             今すぐ始めませんか？
           </h2>
           <p className="text-xl mb-8 text-blue-100">
-            無料登録で限定求人にアクセスできます
+            Roots Career で新しい可能性を発見しよう
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/mypage" className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-all duration-200 hover:shadow-lg active:scale-95">

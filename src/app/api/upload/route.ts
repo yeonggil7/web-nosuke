@@ -1,117 +1,163 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-export async function POST(request: NextRequest) {
-  console.log('📁 アップロードAPIが呼び出されました');
-  
-  try {
-    // Authorizationヘッダーからアクセストークンを取得
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
+// 管理者メールアドレス一覧
+const ADMIN_EMAILS = [
+  'admin@example.com',
+  'shinjirutaro@gmail.com',
+  'testuser001@gmail.com'
+];
 
-    console.log('🔑 認証ヘッダー確認:', {
-      hasAuthHeader: !!authHeader,
-      hasToken: !!token,
-      tokenLength: token?.length || 0
+export async function POST(request: NextRequest) {
+  try {
+    console.log('📁 アップロードAPIが呼び出されました');
+    
+    // Supabaseクライアント作成
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+        },
+      }
+    );
+    
+    // 認証ヘッダーの確認
+    const authHeader = request.headers.get('Authorization');
+    console.log('🔑 認証ヘッダー:', {
+      hasHeader: !!authHeader,
+      headerType: authHeader?.startsWith('Bearer ') ? 'Bearer' : 'Other',
+      tokenLength: authHeader?.replace('Bearer ', '').length
     });
 
-    if (!token) {
-      console.log('❌ 認証エラー: アクセストークンが見つかりません');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('❌ 認証ヘッダーが不正です');
       return NextResponse.json(
-        { 
-          error: 'ログインが必要です。管理者アカウントでログインしてください。',
-          details: 'Authorization header missing'
-        },
+        { error: '認証ヘッダーが必要です' },
         { status: 401 }
       );
     }
 
-    // Supabaseクライアントを作成し、トークンを設定
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    // アクセストークンでセッションを設定
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    // アクセストークンを取得
+    const accessToken = authHeader.replace('Bearer ', '');
     
-    console.log('👤 認証状況:', {
-      user: user ? { id: user.id, email: user.email } : undefined,
-      authError: authError?.message || 'なし'
+    // セッション確認（トークンを使用）
+    const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
+    
+    console.log('👤 ユーザー認証結果:', {
+      hasUser: !!user,
+      userEmail: user?.email,
+      userId: user?.id,
+      userError: userError?.message
     });
 
-    if (authError || !user) {
-      console.log('❌ 認証エラー: 無効なトークンまたはユーザーが見つかりません');
+    if (userError) {
+      console.error('❌ ユーザー認証エラー:', userError);
       return NextResponse.json(
-        { 
-          error: 'ログインが必要です。管理者アカウントでログインしてください。',
-          details: 'Invalid token or user not found',
-          authError: authError?.message
-        },
+        { error: `認証エラー: ${userError.message}` },
+        { status: 401 }
+      );
+    }
+
+    if (!user) {
+      console.error('❌ ユーザーが見つかりません');
+      return NextResponse.json(
+        { error: 'ユーザーが見つかりません。再度ログインしてください。' },
         { status: 401 }
       );
     }
 
     // 管理者権限チェック
-    const ADMIN_EMAILS = [
-      'admin@example.com',
-      'shinjirutaro@gmail.com',
-      'testuser001@gmail.com'
-    ];
+    const isAdmin = ADMIN_EMAILS.includes(user.email || '');
+    console.log('🔐 管理者権限チェック:', {
+      userEmail: user.email,
+      isAdmin,
+      adminEmails: ADMIN_EMAILS
+    });
 
-    if (!ADMIN_EMAILS.includes(user.email || '')) {
-      console.log('❌ 権限エラー: 管理者権限が必要です');
+    if (!isAdmin) {
+      console.error('❌ 管理者権限がありません');
       return NextResponse.json(
-        { 
-          error: '管理者権限が必要です。',
-          details: 'Admin access required'
-        },
+        { error: '管理者権限が必要です' },
         { status: 403 }
       );
     }
 
-    const data = await request.formData();
-    const file: File | null = data.get('file') as unknown as File;
-
-    console.log('📄 受信ファイル情報:', {
-      fileName: file?.name,
-      fileSize: file?.size,
-      fileType: file?.type,
-      hasFile: !!file,
-      userId: user.id,
-      userEmail: user.email
+    // ストレージバケット確認
+    const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+    console.log('📦 バケット確認:', {
+      bucketsCount: buckets?.length || 0,
+      bucketNames: buckets?.map((b: any) => b.name) || [],
+      bucketError: bucketError?.message
     });
 
-    if (!file) {
-      console.log('❌ ファイルが選択されていません');
+    if (bucketError) {
+      console.error('❌ バケット確認エラー:', bucketError);
       return NextResponse.json(
-        { error: 'ファイルが選択されていません' },
+        { 
+          error: 'ストレージ設定エラー',
+          details: bucketError.message,
+          solution: 'Supabaseダッシュボードでjob-imagesバケットを作成してください'
+        },
+        { status: 500 }
+      );
+    }
+
+    const hasJobImagesbucket = buckets?.some((b: any) => b.name === 'job-images');
+    if (!hasJobImagesbucket) {
+      console.error('❌ job-imagesバケットが存在しません');
+      return NextResponse.json(
+        { 
+          error: 'job-imagesバケットが存在しません',
+          solution: 'Supabaseダッシュボードでjob-imagesバケットを作成してください'
+        },
+        { status: 500 }
+      );
+    }
+
+    // フォームデータ取得
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+
+    if (!file) {
+      console.error('❌ ファイルが見つかりません');
+      return NextResponse.json(
+        { error: 'ファイルが見つかりません' },
         { status: 400 }
       );
     }
 
-    // ファイルサイズチェック
+    console.log('📄 受信ファイル情報:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      hasFile: true
+    });
+
+    // ファイルサイズとタイプのチェック
     if (file.size > MAX_FILE_SIZE) {
-      console.log('❌ ファイルサイズエラー:', file.size, 'bytes > ', MAX_FILE_SIZE, 'bytes');
       return NextResponse.json(
         { error: 'ファイルサイズが大きすぎます（最大10MB）' },
         { status: 400 }
       );
     }
 
-    // ファイルタイプチェック
     if (!ALLOWED_TYPES.includes(file.type)) {
-      console.log('❌ ファイルタイプエラー:', file.type, '許可されているタイプ:', ALLOWED_TYPES);
       return NextResponse.json(
         { error: 'サポートされていないファイル形式です' },
         { status: 400 }
       );
     }
 
-    // ファイル名を生成（タイムスタンプ + ランダム文字列）
+    // ファイル名生成
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
     const fileExtension = file.name.split('.').pop();
@@ -119,9 +165,9 @@ export async function POST(request: NextRequest) {
 
     console.log('📝 生成されたファイル名:', fileName);
 
-    // ファイルをArrayBufferに変換
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // ファイルをバッファに変換
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
 
     console.log('🔄 Supabase Storageにアップロード開始...');
     console.log('📦 アップロード設定:', {
@@ -131,66 +177,62 @@ export async function POST(request: NextRequest) {
       bufferSize: buffer.length
     });
 
-    // Supabase Storageにアップロード（認証されたユーザーとして）
+    // Supabase Storageにアップロード
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('job-images')
       .upload(fileName, buffer, {
         contentType: file.type,
-        upsert: false
       });
 
-    console.log('📤 アップロード結果:', { uploadData, uploadError });
+    console.log('📤 アップロード結果:', {
+      uploadData,
+      uploadError: uploadError ? {
+        message: uploadError.message,
+        cause: uploadError.cause
+      } : null
+    });
 
     if (uploadError) {
-      console.error('❌ Supabase upload error:', uploadError);
+      console.error('❌ Supabase upload error:', {
+        message: uploadError.message,
+        cause: uploadError.cause
+      });
       
-      // バケットが存在しない場合の特別なエラーハンドリング
-      if (uploadError.message?.includes('Bucket not found')) {
-        return NextResponse.json(
-          { 
-            error: 'ストレージバケットが作成されていません。管理者にお問い合わせください。',
-            details: 'job-images bucket not found',
-            hint: 'Supabaseダッシュボードでストレージバケット「job-images」を作成してください。'
-          },
-          { status: 500 }
-        );
-      }
-
-      // RLSポリシー違反の場合
       if (uploadError.message?.includes('row-level security policy')) {
         return NextResponse.json(
           { 
-            error: 'ストレージのアクセス権限が設定されていません。管理者にお問い合わせください。',
-            details: 'RLS policy violation',
-            hint: 'job-imagesバケットに適切なRLSポリシーを設定してください。'
+            error: 'ストレージのアクセス権限エラー',
+            details: 'RLSポリシーの設定に問題があります',
+            solution: 'docs/fix-storage-policies.sql を実行してください'
           },
-          { status: 500 }
+          { status: 403 }
         );
       }
-
+      
       return NextResponse.json(
         { 
-          error: 'ファイルのアップロードに失敗しました',
-          details: uploadError.message,
-          supabaseError: uploadError
+          error: 'ファイルアップロードに失敗しました',
+          details: uploadError.message 
         },
         { status: 500 }
       );
     }
 
-    console.log('✅ アップロード成功:', uploadData);
-
-    // 公開URLを取得
-    const { data: publicUrlData } = supabase.storage
+    // パブリックURLを取得
+    const { data: { publicUrl } } = supabase.storage
       .from('job-images')
       .getPublicUrl(fileName);
 
-    console.log('🔗 公開URL生成:', publicUrlData);
+    console.log('✅ アップロード成功:', {
+      fileName,
+      publicUrl,
+      uploadPath: uploadData?.path
+    });
 
     return NextResponse.json({
-      success: true,
-      imageUrl: publicUrlData.publicUrl,
-      fileName: fileName
+      imageUrl: publicUrl,
+      fileName: fileName,
+      message: 'アップロード成功'
     });
 
   } catch (error) {
@@ -200,72 +242,6 @@ export async function POST(request: NextRequest) {
         error: 'サーバーエラーが発生しました',
         details: error instanceof Error ? error.message : '不明なエラー'
       },
-      { status: 500 }
-    );
-  }
-}
-
-// 画像削除用のDELETEエンドポイント
-export async function DELETE(request: NextRequest) {
-  try {
-    // Authorizationヘッダーからアクセストークンを取得
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
-
-    if (!token) {
-      return NextResponse.json(
-        { error: 'ログインが必要です' },
-        { status: 401 }
-      );
-    }
-
-    // Supabaseクライアントを作成し、認証チェック
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'ログインが必要です' },
-        { status: 401 }
-      );
-    }
-
-    const { searchParams } = new URL(request.url);
-    const fileName = searchParams.get('fileName');
-
-    if (!fileName) {
-      return NextResponse.json(
-        { error: 'ファイル名が指定されていません' },
-        { status: 400 }
-      );
-    }
-
-    // Supabase Storageから削除
-    const { error: deleteError } = await supabase.storage
-      .from('job-images')
-      .remove([fileName]);
-
-    if (deleteError) {
-      console.error('Supabase delete error:', deleteError);
-      return NextResponse.json(
-        { error: 'ファイルの削除に失敗しました' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: '画像が削除されました'
-    });
-
-  } catch (error) {
-    console.error('Delete API error:', error);
-    return NextResponse.json(
-      { error: 'サーバーエラーが発生しました' },
       { status: 500 }
     );
   }

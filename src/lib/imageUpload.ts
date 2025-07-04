@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { checkAuthStatus } from './authCheck';
 
 export interface UploadResult {
   success: boolean;
@@ -9,28 +10,67 @@ export interface UploadResult {
 
 export async function uploadImage(file: File): Promise<UploadResult> {
   try {
-    // 現在のユーザーのアクセストークンを取得
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    console.log('🔄 アップロード開始:', { fileName: file.name, size: file.size, type: file.type });
     
-    if (sessionError || !session?.access_token) {
+    // 新しい認証チェック機能を使用
+    const authResult = await checkAuthStatus();
+    
+    console.log('🔐 認証チェック結果:', {
+      isAuthenticated: authResult.isAuthenticated,
+      isAdmin: authResult.isAdmin,
+      debugInfo: authResult.debugInfo,
+      error: authResult.error
+    });
+    
+    if (!authResult.isAuthenticated) {
+      console.error('❌ 認証エラー:', authResult.error);
       return {
         success: false,
-        error: 'ログインが必要です。再度ログインしてください。'
+        error: authResult.error || 'ログインが必要です。再度ログインしてください。'
+      };
+    }
+    
+    if (!authResult.isAdmin) {
+      console.error('❌ 権限エラー: 管理者権限が必要です');
+      return {
+        success: false,
+        error: '管理者権限が必要です。管理者アカウントでログインしてください。'
+      };
+    }
+    
+    if (!authResult.session?.access_token) {
+      console.error('❌ アクセストークンが見つかりません');
+      return {
+        success: false,
+        error: 'アクセストークンが取得できません。再度ログインしてください。'
       };
     }
 
     const formData = new FormData();
     formData.append('file', file);
 
+    console.log('📤 API呼び出し開始:', {
+      endpoint: '/api/upload',
+      hasAuthHeader: true,
+      tokenLength: authResult.session.access_token.length,
+      userEmail: authResult.user?.email
+    });
+
     const response = await fetch('/api/upload', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${session.access_token}`
+        'Authorization': `Bearer ${authResult.session.access_token}`
       },
       body: formData,
     });
 
     const result = await response.json();
+    
+    console.log('📥 API応答:', {
+      status: response.status,
+      ok: response.ok,
+      result
+    });
 
     if (!response.ok) {
       return {
@@ -46,7 +86,7 @@ export async function uploadImage(file: File): Promise<UploadResult> {
     };
 
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error('❌ Upload error:', error);
     return {
       success: false,
       error: 'ネットワークエラーが発生しました'

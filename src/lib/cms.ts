@@ -70,8 +70,24 @@ export async function getAllJobs(): Promise<JobPosting[]> {
   
     console.log('Jobs fetched successfully:', data?.length, 'jobs');
   return data || [];
-  } catch (err) {
-    console.error('Unexpected error fetching jobs:', err);
+  } catch (err: any) {
+    console.error('Unexpected error fetching jobs:', {
+      message: err.message,
+      details: err.toString(),
+      name: err.name,
+      stack: err.stack?.split('\n').slice(0, 3).join('\n') // スタックトレースの最初の3行のみ
+    });
+    
+    // ネットワークエラーの詳細チェック
+    if (err.message?.includes('fetch failed')) {
+      console.error('🌐 ネットワーク接続エラー: Supabaseサーバーに接続できません');
+      console.error('📋 可能な原因:');
+      console.error('  - インターネット接続の問題');
+      console.error('  - Supabaseプロジェクトの停止または削除');
+      console.error('  - ファイアウォールの設定');
+      console.error('  - DNS解決の問題');
+    }
+    
     console.warn('予期しないエラーが発生したため、モックデータを使用します');
     return mockJobs;
   }

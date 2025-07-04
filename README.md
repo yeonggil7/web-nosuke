@@ -1,24 +1,82 @@
-# ジョブポスティングサイト
+# Roots Career - キャリア支援プラットフォーム
 
-Next.js + Cloudflare Pages + Functions + Supabase + Cursol AIを使用したジョブポスティングサイトです。
+## 🌐 本番サイト
 
-## 機能
+**https://rootscareer.jp**
 
-- 求人一覧表示
-- 求人詳細表示
-- ユーザー認証（ログイン・サインアップ）
-- マイページ
-- **管理者機能（求人編集・管理者管理）**
+## 🚨 緊急: AuthSessionMissingError解決方法
 
-## 技術スタック
+**画像アップロード時に「AuthSessionMissingError: Auth session missing!」エラーが発生している場合:**
 
-- Next.js 15
-- TypeScript
-- Tailwind CSS
-- Supabase（認証・データベース）
-- Cloudflare Pages & Functions
+### 🔧 即座に実行すべき手順
 
-## セットアップ
+1. **Supabaseダッシュボードでストレージバケット作成**
+   - [https://app.supabase.com](https://app.supabase.com) にログイン
+   - プロジェクト「web-nosuke」を選択
+   - 左メニュー「Storage」→「Create a new bucket」
+   - バケット名: `job-images`
+   - Public bucket: ✅ **必ずチェック**
+   - 「Create bucket」をクリック
+
+2. **RLSポリシー設定**
+   - 左メニュー「SQL Editor」→「New query」
+   - 以下のSQLを実行:
+
+```sql
+-- 認証済みユーザーのアップロード許可
+CREATE POLICY "Authenticated upload access for job images" ON storage.objects
+FOR INSERT WITH CHECK (
+  bucket_id = 'job-images' 
+  AND auth.role() = 'authenticated'
+);
+
+-- パブリック読み込み許可
+CREATE POLICY "Public read access for job images" ON storage.objects
+FOR SELECT USING (bucket_id = 'job-images');
+```
+
+3. **管理者アカウントでログイン確認**
+   - `https://rootscareer.jp/login` でログイン
+   - `/admin` ページにアクセスできることを確認
+
+4. **開発サーバー再起動**
+```bash
+# 現在のサーバーを停止
+Ctrl + C
+
+# 再起動
+npm run dev
+```
+
+### ✅ 解決確認
+- 管理者でログイン → `/admin/jobs/new` → 画像アップロードテスト
+- エラーが解消されていれば成功！
+
+---
+
+## 📋 プロジェクト概要
+
+**Roots Career** は、あなたのキャリアを根付かせる理想の求人プラットフォームです。
+
+Next.js + Cloudflare Pages + Functions + Supabase + Cursor AIを使用したモダンなジョブポスティングサイトです。
+
+## ✨ 主な機能
+
+- 🔍 **求人検索・一覧表示** - 高度な検索機能とフィルタリング
+- 📄 **求人詳細表示** - 詳細な求人情報と応募機能
+- 👤 **ユーザー認証** - セキュアなログイン・サインアップ
+- 📊 **マイページ** - プロフィール管理と応募履歴
+- ⚙️ **管理者機能** - 求人編集・管理者管理・応募管理
+- 📱 **レスポンシブデザイン** - あらゆるデバイスに対応
+
+## 🛠 技術スタック
+
+- **フロントエンド**: Next.js 15, TypeScript, Tailwind CSS
+- **バックエンド**: Supabase（認証・データベース・ストレージ）
+- **デプロイ**: Cloudflare Pages & Functions
+- **開発支援**: Cursor AI
+
+## 🚀 セットアップ
 
 ### 1. 依存関係のインストール
 
@@ -30,9 +88,10 @@ npm install
 
 `.env.local`ファイルを作成し、以下の環境変数を設定します：
 
-```
+```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SITE_URL=https://rootscareer.jp
 ```
 
 ### 3. Supabaseのセットアップ
@@ -65,8 +124,10 @@ VALUES
 1. Supabaseダッシュボードの「Authentication」メニューを開きます
 2. 「Providers」タブで「Email」を有効にします
 3. 「Settings」タブで以下の設定を行います：
-   - Site URL: あなたのサイトのURL（ローカル開発の場合は `http://localhost:3000`）
-   - Redirect URLs: `http://localhost:3000/login` を追加
+   - Site URL: `https://rootscareer.jp`
+   - Redirect URLs: 
+     - `https://rootscareer.jp/login`
+     - `https://rootscareer.jp/auth/callback`
 
 ### 4. 管理者アカウントの作成
 
@@ -79,26 +140,14 @@ VALUES
 
 ```typescript
 const ADMIN_EMAILS = [
-  'admin@example.com',
+  'admin@rootscareer.jp',
   'your-email@example.com'  // ここに追加
 ];
 ```
 
 3. 開発サーバーを再起動
 
-#### 方法2: 新しい管理者アカウントを作成
-
-1. プロジェクトルートで以下のコマンドを実行：
-
-```bash
-node create-admin-user.js
-```
-
-2. スクリプトの指示に従って設定
-3. 必要に応じてSupabaseダッシュボードでメール確認を有効化
-4. `src/lib/auth.ts` の `ADMIN_EMAILS` に新しいメールアドレスを追加
-
-#### 方法3: 管理者ページから追加
+#### 方法2: 管理者ページから追加
 
 1. 既存の管理者アカウントでログイン
 2. `/admin` ページにアクセス
@@ -111,18 +160,57 @@ node create-admin-user.js
 npm run dev
 ```
 
-## 管理者機能
+ローカル環境: http://localhost:3000
+
+## 🔧 管理者機能
 
 管理者アカウントでログインすると、以下の機能が利用できます：
 
-- **求人編集**: 求人カードの編集ボタン（📝）から直接編集
-- **求人詳細編集**: 求人詳細ページでインライン編集
-- **管理者ページ**: `/admin` でダッシュボードと管理機能にアクセス
-- **応募管理**: `/admin/applications` で全応募データの管理・確認
-- **管理者権限管理**: 他のユーザーを管理者に昇格
-- **画像アップロード**: 求人作成・編集時に画像ファイルを直接アップロード
+- **🎯 求人編集**: 求人カードの編集ボタン（📝）から直接編集
+- **📝 求人詳細編集**: 求人詳細ページでインライン編集
+- **🏠 管理者ページ**: `/admin` でダッシュボードと管理機能にアクセス
+- **📋 応募管理**: `/admin/applications` で全応募データの管理・確認
+- **👥 管理者権限管理**: 他のユーザーを管理者に昇格
+- **📷 画像アップロード**: 求人作成・編集時に画像ファイルを直接アップロード
 
-### 画像アップロード機能
+### 🚨 画像アップロード機能のトラブルシューティング
+
+画像アップロード時に「AuthSessionMissingError」や「Bucket not found」エラーが発生する場合は、以下の手順で解決してください：
+
+#### 1. Supabaseストレージバケットの作成
+
+1. [Supabaseダッシュボード](https://app.supabase.com) にログイン
+2. プロジェクトを選択
+3. 左メニューから「Storage」をクリック
+4. 「SQL Editor」タブを開く
+5. 以下のSQLを実行：
+
+**🔧 ポリシーエラーが発生した場合（"policy already exists"）**
+
+```sql
+-- 既存ポリシーを削除してから再作成
+DROP POLICY IF EXISTS "Public read access for job images" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated upload access for job images" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated update access for job images" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated delete access for job images" ON storage.objects;
+
+-- バケット作成
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('job-images', 'job-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- 新しいポリシーを作成
+CREATE POLICY "Public read access for job images" ON storage.objects
+FOR SELECT USING (bucket_id = 'job-images');
+
+CREATE POLICY "Authenticated upload access for job images" ON storage.objects
+FOR INSERT WITH CHECK (
+  bucket_id = 'job-images' 
+  AND auth.role() = 'authenticated'
+);
+```
+
+### 📷 画像アップロード機能
 
 求人作成・編集時に以下の方法で画像を設定できます：
 
@@ -143,49 +231,41 @@ npm run dev
 - **削除権限**: 管理者のみ  
 - **閲覧権限**: 全員（パブリック）
 
-### Supabase Storage設定
-
-画像アップロード機能を使用するには、Supabaseで以下の設定が必要です：
-
-```sql
--- docs/supabase-storage-setup.sql の内容をSupabaseダッシュボードで実行
--- 1. job-imagesバケットの作成
--- 2. 管理者用アップロード・削除ポリシー
--- 3. パブリック読み込みポリシー
-```
-
-### 応募管理機能
+### 📊 応募管理機能
 
 応募管理ページ（`/admin/applications`）では以下の機能が利用できます：
 
-- **統計ダッシュボード**: 応募総数、ステータス別集計、期間別集計
-- **フィルタリング**: ステータス、検索、ソート機能
-- **ステータス管理**: 応募ステータスの更新
-- **応募者情報**: 名前、メールアドレス、志望動機の確認
-- **データ削除**: 不要な応募データの削除
+- **📈 統計ダッシュボード**: 応募総数、ステータス別集計、期間別集計
+- **🔍 フィルタリング**: ステータス、検索、ソート機能
+- **📝 ステータス管理**: 応募ステータスの更新
+- **👤 応募者情報**: 名前、メールアドレス、志望動機の確認
+- **🗑️ データ削除**: 不要な応募データの削除
 
-#### メールアドレス表示について
+## 🌐 ドメイン設定
 
-- **新規応募**: 今後の応募では自動的にメールアドレスが保存されます
-- **既存応募**: データベース更新が必要な場合があります
+### 🎯 本番環境
 
-既存の応募データでメールアドレスが表示されない場合は、以下のSQLを実行してください：
+**https://rootscareer.jp**
 
-```sql
--- Supabaseダッシュボードで以下のSQLを実行
-ALTER TABLE job_applications 
-ADD COLUMN IF NOT EXISTS applicant_email TEXT;
+### 📋 ドメイン設定手順
 
-UPDATE job_applications 
-SET applicant_email = (
-  SELECT email 
-  FROM auth.users 
-  WHERE auth.users.id = job_applications.user_id
-)
-WHERE applicant_email IS NULL OR applicant_email = '';
-```
+詳細な設定手順は `docs/domain-setup-guide.md` をご参照ください。
 
-## デプロイ
+#### 主要な設定項目
+
+1. **Cloudflareドメイン設定**
+   - ネームサーバー変更
+   - SSL証明書設定
+
+2. **Cloudflare Pages設定**
+   - カスタムドメイン追加
+   - 環境変数設定
+
+3. **Supabase認証設定**
+   - Site URL: `https://rootscareer.jp`
+   - Redirect URLs設定
+
+## 🚀 デプロイ
 
 ### Cloudflare Pages
 
@@ -197,40 +277,20 @@ WHERE applicant_email IS NULL OR applicant_email = '';
 3. 環境変数の設定:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_SITE_URL=https://rootscareer.jp`
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+詳細な本番環境設定は `docs/production-env-vars.md` をご参照ください。
 
-## Getting Started
+## 📞 サポート・お問い合わせ
 
-First, run the development server:
+- **メール**: info@rootscareer.jp
+- **サポート**: support@rootscareer.jp
+- **ウェブサイト**: https://rootscareer.jp
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📄 ライセンス
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This project is developed with Next.js.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Roots Career** - あなたのキャリアを根付かせる。理想の未来への第一歩をサポートします。

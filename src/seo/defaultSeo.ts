@@ -1,5 +1,3 @@
-import { DefaultSeoProps } from 'next-seo';
-
 export const defaultSeoConfig = {
   title: 'FindOut Career - あなたの理想のキャリアを見つけよう',
   description: '理想のキャリアを見つけるための求人プラットフォーム。厳選された求人情報で、あなたの未来を切り拓きましょう。',

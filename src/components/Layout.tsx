@@ -138,7 +138,6 @@ export default function Layout({ children }: LayoutProps) {
               <h3 className="text-lg font-semibold mb-4">サービス</h3>
               <ul className="space-y-2 text-gray-400">
                 <li><Link href="/jobs" className="hover:text-white transition-colors">求人検索</Link></li>
-                <li><Link href="/career-guide" className="hover:text-white transition-colors">キャリアガイド</Link></li>
               </ul>
             </div>
             

@@ -8,15 +8,35 @@ import { getAllJobs } from '@/lib/cms';
 export const runtime = 'edge';
 
 // デモ用求人データ
-const featuredJob = {
-  id: "1",
-  title: "フロントエンドエンジニア",
-  summary: "React、Next.js、TypeScriptを使用したWebアプリケーション開発をお任せします。",
-  tags: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
-  imageurl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
-  content: "最新の技術スタックを使用して、ユーザー体験を重視したWebアプリケーションの開発をお任せします。",
-  created_at: new Date().toISOString()
-};
+const demoJobs = [
+  {
+    id: "079aec28-02e1-415a-9f51-8e45ed043872",
+    title: "テスト　柱",
+    summary: "あkささ",
+    tags: ["テスト"],
+    imageurl: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&q=80", // 高品質なオフィス画像
+    content: "詳細な求人内容がここに表示されます",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "eb67adf6-e5b2-4373-89dc-b131da629d8b",
+    title: "フルスタックエンジニア",
+    summary: "フロントエンドからバックエンドまで幅広い開発",
+    tags: ["React", "Node.js", "MongoDB"],
+    imageurl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80",
+    content: "フルスタックエンジニアとして最新技術を使った開発をお任せします",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "demo-frontend",
+    title: "フロントエンドエンジニア",
+    summary: "React、Next.js、TypeScriptを使用したWebアプリケーション開発",
+    tags: ["React", "Next.js", "TypeScript"],
+    imageurl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80",
+    content: "最新のフロントエンド技術を活用した開発業務",
+    created_at: new Date().toISOString()
+  }
+];
 
 export const revalidate = 0; // ISRを無効にして常に最新データを取得
 

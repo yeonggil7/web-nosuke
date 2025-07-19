@@ -1,19 +1,20 @@
 User-agent: *
 Allow: /
-
-# 主要ページ
-Allow: /
+Allow: /jobs
 Allow: /jobs/*
 Allow: /login
 Allow: /signup
 
-# プライベートページは除外
+# 非公開ページ
+Disallow: /admin
 Disallow: /admin/*
-Disallow: /mypage/*
+Disallow: /api
 Disallow: /api/*
+Disallow: /mypage
+Disallow: /mypage/*
 
-# サイトマップの場所
-Sitemap: https://rootscareer.jp/sitemap.xml
+# サイトマップ
+Sitemap: https://findout-career.com/sitemap.xml
 
 # クローラー向けの設定
 Crawl-delay: 1 

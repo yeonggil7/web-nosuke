@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOMAIN="rootscareer.jp"
+DOMAIN="findout-career.com"
 
 echo "🔍 DNS設定確認ツール: $DOMAIN"
 echo "==============================="

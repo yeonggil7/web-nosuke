@@ -1,8 +1,8 @@
-# Roots Career - キャリア支援プラットフォーム
+# FindOut Career - キャリア発見プラットフォーム
 
 ## 🌐 本番サイト
 
-**https://rootscareer.jp**
+**https://findout-career.com**
 
 ## 🚨 緊急: AuthSessionMissingError解決方法
 
@@ -36,7 +36,7 @@ FOR SELECT USING (bucket_id = 'job-images');
 ```
 
 3. **管理者アカウントでログイン確認**
-   - `https://rootscareer.jp/login` でログイン
+   - `https://findout-career.com/login` でログイン
    - `/admin` ページにアクセスできることを確認
 
 4. **開発サーバー再起動**
@@ -56,7 +56,7 @@ npm run dev
 
 ## 📋 プロジェクト概要
 
-**Roots Career** は、あなたのキャリアを根付かせる理想の求人プラットフォームです。
+**FindOut Career** は、あなたのキャリアを発見し、理想の未来を実現するためのプラットフォームです。
 
 Next.js + Cloudflare Pages + Functions + Supabase + Cursor AIを使用したモダンなジョブポスティングサイトです。
 
@@ -91,7 +91,7 @@ npm install
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-NEXT_PUBLIC_SITE_URL=https://rootscareer.jp
+NEXT_PUBLIC_SITE_URL=https://findout-career.com
 ```
 
 ### 3. Supabaseのセットアップ
@@ -124,10 +124,10 @@ VALUES
 1. Supabaseダッシュボードの「Authentication」メニューを開きます
 2. 「Providers」タブで「Email」を有効にします
 3. 「Settings」タブで以下の設定を行います：
-   - Site URL: `https://rootscareer.jp`
+   - Site URL: `https://findout-career.com`
    - Redirect URLs: 
-     - `https://rootscareer.jp/login`
-     - `https://rootscareer.jp/auth/callback`
+     - `https://findout-career.com/login`
+     - `https://findout-career.com/auth/callback`
 
 ### 4. 管理者アカウントの作成
 
@@ -140,7 +140,7 @@ VALUES
 
 ```typescript
 const ADMIN_EMAILS = [
-  'admin@rootscareer.jp',
+  'admin@findout-career.com',
   'your-email@example.com'  // ここに追加
 ];
 ```
@@ -173,79 +173,11 @@ npm run dev
 - **👥 管理者権限管理**: 他のユーザーを管理者に昇格
 - **📷 画像アップロード**: 求人作成・編集時に画像ファイルを直接アップロード
 
-### 🚨 画像アップロード機能のトラブルシューティング
-
-画像アップロード時に「AuthSessionMissingError」や「Bucket not found」エラーが発生する場合は、以下の手順で解決してください：
-
-#### 1. Supabaseストレージバケットの作成
-
-1. [Supabaseダッシュボード](https://app.supabase.com) にログイン
-2. プロジェクトを選択
-3. 左メニューから「Storage」をクリック
-4. 「SQL Editor」タブを開く
-5. 以下のSQLを実行：
-
-**🔧 ポリシーエラーが発生した場合（"policy already exists"）**
-
-```sql
--- 既存ポリシーを削除してから再作成
-DROP POLICY IF EXISTS "Public read access for job images" ON storage.objects;
-DROP POLICY IF EXISTS "Authenticated upload access for job images" ON storage.objects;
-DROP POLICY IF EXISTS "Authenticated update access for job images" ON storage.objects;
-DROP POLICY IF EXISTS "Authenticated delete access for job images" ON storage.objects;
-
--- バケット作成
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('job-images', 'job-images', true)
-ON CONFLICT (id) DO NOTHING;
-
--- 新しいポリシーを作成
-CREATE POLICY "Public read access for job images" ON storage.objects
-FOR SELECT USING (bucket_id = 'job-images');
-
-CREATE POLICY "Authenticated upload access for job images" ON storage.objects
-FOR INSERT WITH CHECK (
-  bucket_id = 'job-images' 
-  AND auth.role() = 'authenticated'
-);
-```
-
-### 📷 画像アップロード機能
-
-求人作成・編集時に以下の方法で画像を設定できます：
-
-#### 📁 ファイルアップロード
-- **対応形式**: JPEG, PNG, GIF, WebP
-- **最大サイズ**: 10MB
-- **操作方法**: 
-  - ドラッグ&ドロップでファイルを選択
-  - クリックしてファイル選択ダイアログを開く
-- **保存先**: Supabase Storage (`job-images`バケット)
-
-#### 🔗 URL指定
-- **外部画像サイト**: Unsplash、Pixabay、Pexels等のURLを指定
-- **プレビュー機能**: 設定前に画像をプレビュー表示
-
-#### セキュリティ
-- **アップロード権限**: 管理者のみ
-- **削除権限**: 管理者のみ  
-- **閲覧権限**: 全員（パブリック）
-
-### 📊 応募管理機能
-
-応募管理ページ（`/admin/applications`）では以下の機能が利用できます：
-
-- **📈 統計ダッシュボード**: 応募総数、ステータス別集計、期間別集計
-- **🔍 フィルタリング**: ステータス、検索、ソート機能
-- **📝 ステータス管理**: 応募ステータスの更新
-- **👤 応募者情報**: 名前、メールアドレス、志望動機の確認
-- **🗑️ データ削除**: 不要な応募データの削除
-
 ## 🌐 ドメイン設定
 
 ### 🎯 本番環境
 
-**https://rootscareer.jp**
+**https://findout-career.com**
 
 ### 📋 ドメイン設定手順
 
@@ -262,7 +194,7 @@ FOR INSERT WITH CHECK (
    - 環境変数設定
 
 3. **Supabase認証設定**
-   - Site URL: `https://rootscareer.jp`
+   - Site URL: `https://findout-career.com`
    - Redirect URLs設定
 
 ## 🚀 デプロイ
@@ -277,15 +209,15 @@ FOR INSERT WITH CHECK (
 3. 環境変数の設定:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_SITE_URL=https://rootscareer.jp`
+   - `NEXT_PUBLIC_SITE_URL=https://findout-career.com`
 
 詳細な本番環境設定は `docs/production-env-vars.md` をご参照ください。
 
 ## 📞 サポート・お問い合わせ
 
-- **メール**: info@rootscareer.jp
-- **サポート**: support@rootscareer.jp
-- **ウェブサイト**: https://rootscareer.jp
+- **メール**: info@findout-career.com
+- **サポート**: support@findout-career.com
+- **ウェブサイト**: https://findout-career.com
 
 ## 📄 ライセンス
 
@@ -293,4 +225,4 @@ This project is developed with Next.js.
 
 ---
 
-**Roots Career** - あなたのキャリアを根付かせる。理想の未来への第一歩をサポートします。
+**FindOut Career** - あなたのキャリアを発見し、理想の未来を実現するプラットフォーム。

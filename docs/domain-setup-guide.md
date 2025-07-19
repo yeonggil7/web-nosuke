@@ -1,4 +1,4 @@
-# 🌐 ドメイン設定ガイド: rootscareer.jp
+# 🌐 ドメイン設定ガイド: findout-career.com
 
 ## 📋 必要な作業一覧
 
@@ -7,13 +7,13 @@
 #### ステップ1: Cloudflareにドメインを追加
 1. [Cloudflareダッシュボード](https://dash.cloudflare.com) にログイン
 2. 「Add a Site」をクリック
-3. `rootscareer.jp` を入力
+3. `findout-career.com` を入力
 4. プランを選択（Freeプランでも可能）
 5. Cloudflareが提供するネームサーバーを確認
 
 #### ステップ2: ドメインレジストラでネームサーバー変更
 1. ドメインを取得したレジストラ（お名前.com、ムームードメイン等）にログイン
-2. `rootscareer.jp` のネームサーバー設定を変更
+2. `findout-career.com` のネームサーバー設定を変更
 3. Cloudflareが提供した2つのネームサーバーに変更：
    - `xxx.ns.cloudflare.com`
    - `yyy.ns.cloudflare.com`
@@ -23,10 +23,10 @@
 
 #### ステップ1: カスタムドメインの追加
 1. [Cloudflare Pages ダッシュボード](https://dash.cloudflare.com/pages) にアクセス
-2. `web-nosuke` プロジェクトを選択
+2. `web-nosuke` または `rootscareer` プロジェクトを選択
 3. 「Custom domains」タブを選択
 4. 「Set up a custom domain」をクリック
-5. `rootscareer.jp` を入力
+5. `findout-career.com` を入力
 6. DNS設定を確認・承認
 
 #### ステップ2: SSL証明書の設定
@@ -41,7 +41,7 @@
 
 ```bash
 # 本番環境用
-NEXT_PUBLIC_SITE_URL=https://rootscareer.jp
+NEXT_PUBLIC_SITE_URL=https://findout-career.com
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
@@ -51,10 +51,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 2. プロジェクト「web-nosuke」を選択
 3. 「Authentication」→「Settings」
 4. 以下のURLを追加：
-   - Site URL: `https://rootscareer.jp`
+   - Site URL: `https://findout-career.com`
    - Redirect URLs: 
-     - `https://rootscareer.jp/login`
-     - `https://rootscareer.jp/auth/callback`
+     - `https://findout-career.com/login`
+     - `https://findout-career.com/auth/callback`
 
 ### 4. DNS設定の確認
 
@@ -62,21 +62,21 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ```
 # Aレコード
-rootscareer.jp → Cloudflare Pages IP (自動設定)
+findout-career.com → Cloudflare Pages IP (自動設定)
 
 # CNAMEレコード
-www.rootscareer.jp → rootscareer.jp
+www.findout-career.com → findout-career.com
 
 # TXTレコード（オプション）
-rootscareer.jp → "v=spf1 include:_spf.google.com ~all" (メール設定用)
+findout-career.com → "v=spf1 include:_spf.google.com ~all" (メール設定用)
 ```
 
 ### 5. テスト手順
 
 #### ステップ1: ドメインアクセステスト
-1. ブラウザで `https://rootscareer.jp` にアクセス
+1. ブラウザで `https://findout-career.com` にアクセス
 2. サイトが正しく表示されることを確認
-3. `https://www.rootscareer.jp` も確認
+3. `https://www.findout-career.com` も確認
 
 #### ステップ2: 機能テスト
 1. ユーザー登録・ログイン機能
@@ -88,10 +88,10 @@ rootscareer.jp → "v=spf1 include:_spf.google.com ~all" (メール設定用)
 
 #### Google Search Console
 1. [Google Search Console](https://search.google.com/search-console) に新しいドメインを追加
-2. サイトマップを送信: `https://rootscareer.jp/sitemap.xml`
+2. サイトマップを送信: `https://findout-career.com/sitemap.xml`
 
 #### Google Analytics（オプション）
-1. 新しいプロパティとして `rootscareer.jp` を追加
+1. 新しいプロパティとして `findout-career.com` を追加
 2. トラッキングコードを確認
 
 ### 7. リダイレクト設定（必要に応じて）
@@ -100,7 +100,7 @@ rootscareer.jp → "v=spf1 include:_spf.google.com ~all" (メール設定用)
 
 ```javascript
 // Cloudflare Pages _redirects ファイル
-https://old-domain.com/* https://rootscareer.jp/:splat 301
+https://old-domain.com/* https://findout-career.com/:splat 301
 ```
 
 ## 🚨 注意事項
@@ -125,7 +125,7 @@ https://old-domain.com/* https://rootscareer.jp/:splat 301
 
 #### 1. ドメインが反映されない
 - DNS伝播に最大48時間かかる場合がある
-- `dig rootscareer.jp` コマンドでDNS設定を確認
+- `dig findout-career.com` コマンドでDNS設定を確認
 
 #### 2. SSL証明書エラー
 - Cloudflareの「SSL/TLS」設定を「Full (strict)」に変更
@@ -155,8 +155,8 @@ https://old-domain.com/* https://rootscareer.jp/:splat 301
 
 ## 🎯 完了後の確認項目
 
-- [ ] `https://rootscareer.jp` でサイトアクセス可能
-- [ ] `https://www.rootscareer.jp` でサイトアクセス可能
+- [ ] `https://findout-career.com` でサイトアクセス可能
+- [ ] `https://www.findout-career.com` でサイトアクセス可能
 - [ ] ユーザー登録・ログイン正常動作
 - [ ] 管理者機能正常動作
 - [ ] 画像アップロード正常動作

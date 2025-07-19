@@ -7,14 +7,11 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Cloudflare Pages用最適化
   experimental: {
     webpackBuildWorker: false,
   },
   webpack: (config, { isServer }) => {
-    // キャッシュを無効化してファイルサイズを削減
     config.cache = false;
-    
     return config;
   },
   images: {

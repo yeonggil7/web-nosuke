@@ -10,6 +10,9 @@ import { JobPosting } from '@/schema/jobSchema';
 import ImageUpload from '@/components/ImageUpload';
 import Link from 'next/link';
 
+// Edge Runtime設定
+export const runtime = 'edge';
+
 interface EditJobPageProps {
   params: {
     id: string;

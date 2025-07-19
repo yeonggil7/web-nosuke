@@ -11,6 +11,9 @@ import Image from 'next/image';
 import FavoriteButton from '@/components/FavoriteButton';
 import ApplyButton from '@/components/ApplyButton';
 
+// Edge Runtime設定
+export const runtime = 'edge';
+
 // デフォルトの画像URL
 const DEFAULT_IMAGE_URL = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3";
 

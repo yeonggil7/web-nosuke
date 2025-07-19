@@ -4,6 +4,20 @@ import Layout from '@/components/Layout';
 import FavoriteButton from '@/components/FavoriteButton';
 import { getAllJobs } from '@/lib/cms';
 
+// Edge Runtime設定
+export const runtime = 'edge';
+
+// デモ用求人データ
+const featuredJob = {
+  id: "1",
+  title: "フロントエンドエンジニア",
+  summary: "React、Next.js、TypeScriptを使用したWebアプリケーション開発をお任せします。",
+  tags: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+  imageurl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+  content: "最新の技術スタックを使用して、ユーザー体験を重視したWebアプリケーションの開発をお任せします。",
+  created_at: new Date().toISOString()
+};
+
 export const revalidate = 0; // ISRを無効にして常に最新データを取得
 
 export default async function Home() {

@@ -57,18 +57,12 @@ export default async function Home() {
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               FindOut Careerで理想の求人を発見し、新しいキャリアの扉を開きましょう
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Link
                 href="/jobs"
                 className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
               >
                 キャリアを探す
-              </Link>
-              <Link
-                href="/about"
-                className="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition duration-200"
-              >
-                サービス詳細
               </Link>
             </div>
           </div>

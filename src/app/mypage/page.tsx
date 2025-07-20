@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import Link from 'next/link';
-// import SupabaseStatus from '@/components/SupabaseStatus';
 
 export default function MyPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -122,16 +121,6 @@ export default function MyPage() {
               ページを再読み込み
             </button>
           </div>
-          
-          {/* デバッグ情報 */}
-          {/* {debugInfo && (
-            <div className="mt-6 p-4 bg-gray-100 rounded-lg text-left">
-              <h3 className="font-bold mb-2">🔍 デバッグ情報</h3>
-              <pre className="text-xs bg-white p-2 rounded overflow-auto">
-                {JSON.stringify(debugInfo, null, 2)}
-              </pre>
-            </div>
-          )} */}
         </div>
       </div>
     );
@@ -155,19 +144,6 @@ export default function MyPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Supabase接続状況 */}
-      {/* <div className="mb-6">
-        <SupabaseStatus />
-      </div> */}
-
-      {/* デバッグ情報 */}
-      {/* <div className="mb-6 p-4 bg-gray-100 rounded-lg">
-        <h3 className="font-bold mb-2">🔍 デバッグ情報</h3>
-        <pre className="text-sm bg-white p-2 rounded overflow-auto">
-          {JSON.stringify(debugInfo, null, 2)}
-        </pre>
-      </div> */}
-
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">マイページ</h1>

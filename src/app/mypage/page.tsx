@@ -10,24 +10,11 @@ import { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 // import SupabaseStatus from '@/components/SupabaseStatus';
 
-interface DebugInfo {
-  hasUser: boolean;
-  userId: string;
-  email: string;
-  emailConfirmed: string;
-  hasProfile?: boolean;
-  profileData?: string;
-  isAdmin?: boolean;
-  error?: string;
-  authSessionExists?: boolean;
-}
-
 export default function MyPage() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdminUser, setIsAdminUser] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -37,34 +24,30 @@ export default function MyPage() {
         console.log('🚀 マイページ: ユーザー読み込み開始');
         setAuthError(null);
         
-        const currentUser = await getCurrentUser();
+        // タイムアウト設定（10秒）
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('認証処理がタイムアウトしました')), 10000)
+        );
+        
+        const authPromise = getCurrentUser();
+        const currentUser = await Promise.race([authPromise, timeoutPromise]) as any;
+        
         console.log('👤 現在のユーザー:', currentUser ? {
           id: currentUser.id,
           email: currentUser.email,
           emailConfirmed: currentUser.email_confirmed_at
         } : 'ログインしていません');
         
-        // 基本的なデバッグ情報を設定
-        const baseDebugInfo: DebugInfo = {
-          hasUser: !!currentUser,
-          userId: currentUser?.id || 'なし',
-          email: currentUser?.email || 'なし',
-          emailConfirmed: currentUser?.email_confirmed_at || 'なし',
-          authSessionExists: !!currentUser
-        };
-        
-        setDebugInfo(baseDebugInfo);
-
         if (!currentUser) {
           // ユーザーがログインしていない場合
           console.log('🔄 ログインしていないためリダイレクト');
           setAuthError('ログインセッションが見つかりません。再度ログインしてください。');
           setIsLoading(false);
           
-          // 3秒後にリダイレクト
+          // 即座にリダイレクト
           setTimeout(() => {
             router.push('/login');
-          }, 3000);
+          }, 1000);
           return;
         }
 
@@ -80,37 +63,14 @@ export default function MyPage() {
           const adminStatus = await isAdmin();
           setIsAdminUser(adminStatus);
           
-          setDebugInfo(prev => ({
-            ...baseDebugInfo,
-            hasProfile: !!userProfile,
-            profileData: userProfile ? '設定済み' : '未設定',
-            isAdmin: adminStatus
-          }));
-          
           console.log('✅ ユーザーデータ読み込み完了');
         } catch (profileError) {
           console.error('💥 プロフィール取得エラー:', profileError);
-          setDebugInfo(prev => ({
-            ...baseDebugInfo,
-            hasProfile: false,
-            profileData: '取得エラー',
-            error: profileError instanceof Error ? profileError.message : '不明なエラー'
-          }));
+          // プロフィールエラーは致命的ではないので続行
         }
       } catch (error) {
         console.error('💥 ユーザー読み込みエラー:', error);
-        setAuthError(error instanceof Error ? error.message : '不明なエラーが発生しました');
-        setDebugInfo(prev => ({
-          hasUser: false,
-          userId: 'なし',
-          email: 'なし',
-          emailConfirmed: 'なし',
-          authSessionExists: false,
-          hasProfile: prev?.hasProfile,
-          profileData: prev?.profileData,
-          isAdmin: prev?.isAdmin,
-          error: error instanceof Error ? error.message : '不明なエラー'
-        }));
+        setAuthError(error instanceof Error ? error.message : '認証処理中にエラーが発生しました');
       } finally {
         setIsLoading(false);
       }

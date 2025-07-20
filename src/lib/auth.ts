@@ -27,7 +27,8 @@ export async function signUpWithEmail(email: string, password: string, agreeToPr
       data: {
         agreed_to_privacy_policy: agreeToPrivacy,
         privacy_policy_agreed_at: agreeToPrivacy ? new Date().toISOString() : null
-      }
+      },
+      emailRedirectTo: `${typeof window !== 'undefined' ? window.location.origin : 'https://findout-career.com'}/auth/callback`
     }
   });
   

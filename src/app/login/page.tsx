@@ -52,8 +52,8 @@ export default function LoginPage() {
             setSuccess('アカウントが作成されました。マイページに移動します...');
             setTimeout(() => router.push('/mypage'), 2000);
           } else {
-            // メール確認が必要な場合
-            setSuccess(`アカウントが作成されました！\n\n${email} に確認メールを送信しました。\nメール内のリンクをクリックして、メールアドレスを確認してください。`);
+            // メール確認が必要な場合 - 専用ページにリダイレクト
+            router.push(`/signup-success?email=${encodeURIComponent(email)}`);
           }
         }
       }

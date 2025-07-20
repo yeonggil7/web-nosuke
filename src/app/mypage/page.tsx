@@ -164,14 +164,14 @@ export default function MyPage() {
           </div>
           
           {/* デバッグ情報 */}
-          {debugInfo && (
+          {/* {debugInfo && (
             <div className="mt-6 p-4 bg-gray-100 rounded-lg text-left">
               <h3 className="font-bold mb-2">🔍 デバッグ情報</h3>
               <pre className="text-xs bg-white p-2 rounded overflow-auto">
                 {JSON.stringify(debugInfo, null, 2)}
               </pre>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     );

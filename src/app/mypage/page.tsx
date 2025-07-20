@@ -201,12 +201,12 @@ export default function MyPage() {
       </div> */}
 
       {/* デバッグ情報 */}
-      <div className="mb-6 p-4 bg-gray-100 rounded-lg">
+      {/* <div className="mb-6 p-4 bg-gray-100 rounded-lg">
         <h3 className="font-bold mb-2">🔍 デバッグ情報</h3>
         <pre className="text-sm bg-white p-2 rounded overflow-auto">
           {JSON.stringify(debugInfo, null, 2)}
         </pre>
-      </div>
+      </div> */}
 
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
